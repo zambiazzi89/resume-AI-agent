@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Separator } from '@/components/ui/separator'
+import { Circle, CircleCheck, LoaderCircle, TriangleAlert } from 'lucide-react'
 import { AGENT_STEPS, type AgentStep } from '@/ai/types'
 
 export type StepTimings = Partial<
@@ -40,36 +40,58 @@ export function AgentProgress({
   if (entries.length === 0) return null
 
   return (
-    <div>
-      <Separator className="my-4" />
+    <ul className="flex flex-col gap-2">
+      {AGENT_STEPS.map(({ key, label }) => {
+        const timing = timings[key]
+        const done = Boolean(timing?.finishedAt)
+        const active = Boolean(timing) && !done
 
-      <ul>
-        {AGENT_STEPS.map(({ key, label }) => {
-          const timing = timings[key]
-          const done = Boolean(timing?.finishedAt)
-          const active = Boolean(timing) && !done
+        return (
+          <li key={key} className="flex items-center gap-2 text-sm">
+            <StepIcon done={done} active={active} failed={failed} />
 
-          return (
-            <li key={key} className="flex items-center gap-2">
-              <span>{done ? '✅' : active ? (failed ? '⚠️' : '⏳') : '⬜'}</span>
+            <span
+              className={
+                done
+                  ? 'text-muted-foreground'
+                  : active
+                    ? 'font-medium'
+                    : 'text-muted-foreground/50'
+              }
+            >
+              {label}
+            </span>
 
-              <span
-                className={
-                  active ? 'font-medium' : timing ? undefined : 'opacity-50'
-                }
-              >
-                {label}
+            {timing && (
+              <span className="ml-auto text-xs tabular-nums text-muted-foreground">
+                {formatElapsed((timing.finishedAt ?? now) - timing.startedAt)}
               </span>
-
-              {timing && (
-                <span className="text-sm opacity-60 tabular-nums">
-                  {formatElapsed((timing.finishedAt ?? now) - timing.startedAt)}
-                </span>
-              )}
-            </li>
-          )
-        })}
-      </ul>
-    </div>
+            )}
+          </li>
+        )
+      })}
+    </ul>
   )
+}
+
+function StepIcon({
+  done,
+  active,
+  failed,
+}: {
+  done: boolean
+  active: boolean
+  failed: boolean
+}) {
+  if (done) return <CircleCheck className="size-4 text-viz-good" aria-hidden />
+
+  if (active && failed)
+    return <TriangleAlert className="size-4 text-viz-critical" aria-hidden />
+
+  if (active)
+    return (
+      <LoaderCircle className="size-4 animate-spin text-primary" aria-hidden />
+    )
+
+  return <Circle className="size-4 text-muted-foreground/30" aria-hidden />
 }

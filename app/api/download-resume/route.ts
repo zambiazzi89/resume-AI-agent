@@ -1,16 +1,15 @@
 import { NextResponse } from 'next/server'
-import {
-  Document,
-  Packer,
-  Paragraph,
-  TextRun,
-  HeadingLevel,
-  AlignmentType,
-} from 'docx'
+import { Document, Packer, Paragraph, TextRun } from 'docx'
+
+import type { ResumeType } from '../data/resume'
 
 export async function POST(req: Request) {
   try {
-    const { resume, name, contact } = await req.json()
+    const { resume, name, contact } = (await req.json()) as {
+      resume: ResumeType
+      name?: string
+      contact?: string
+    }
 
     const doc = new Document({
       styles: {
@@ -197,7 +196,7 @@ export async function POST(req: Request) {
               spacing: { after: 100 },
             }),
 
-            ...resume.experience.flatMap((job: any) => [
+            ...resume.experience.flatMap((job) => [
               // Role + Company
               new Paragraph({
                 children: [
@@ -252,7 +251,7 @@ export async function POST(req: Request) {
               spacing: { after: 100 },
             }),
 
-            ...(resume.projects?.flatMap((proj: any) => [
+            ...(resume.projects?.flatMap((proj) => [
               new Paragraph({
                 children: [
                   new TextRun({

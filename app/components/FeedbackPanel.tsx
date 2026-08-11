@@ -1,69 +1,64 @@
-import { Separator } from '@/components/ui/separator'
-import { CardTitle } from '@/components/ui/card'
+import { Check, Info, X } from 'lucide-react'
+import { Card } from '@/components/ui/card'
+import type { LucideIcon } from 'lucide-react'
 
-function getScoreMatch(score: number) {
-  if (score === 100) return { emoji: '🟢', level: 'Perfect Match!' }
-  if (score >= 90) return { emoji: '🟢', level: 'Near Perfect Match!' }
-  if (score >= 75) return { emoji: '🟢', level: 'Strong Match!' }
-  if (score >= 60) return { emoji: '🟡', level: 'Moderate match' }
-  if (score >= 40) return { emoji: '🟠', level: 'Weak match' }
-  return { emoji: '🔴', level: 'Poor match' }
+function FindingList({
+  title,
+  items,
+  Icon,
+  tone,
+}: {
+  title: string
+  items: string[]
+  Icon: LucideIcon
+  tone: string
+}) {
+  if (!items?.length) return null
+
+  return (
+    <div>
+      <p className="mb-2 text-sm font-medium">{title}</p>
+      <ul className="flex flex-col gap-1.5">
+        {items.map((item, i) => (
+          <li key={i} className="flex gap-2 text-sm text-muted-foreground">
+            <Icon className={`mt-0.5 size-4 shrink-0 ${tone}`} aria-hidden />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
 }
 
 export function FeedbackPanel({
-  score,
-  baselineScore,
-  caption,
   strengths,
   weaknesses,
   considerations,
 }: {
-  score: number
-  baselineScore?: number
-  caption?: string
   strengths: string[]
   weaknesses: string[]
   considerations?: string[]
 }) {
   return (
-    <div>
-      <Separator className="my-4" />
-      <CardTitle className="my-2">
-        {getScoreMatch(score).emoji} Score: {score}/100
-        {baselineScore !== undefined && baselineScore !== score && (
-          <span className="font-normal"> (was {baselineScore})</span>
-        )}
-      </CardTitle>
-      <div>
-        {getScoreMatch(score).level}
-        {caption && <span className="opacity-60"> — {caption}</span>}
-      </div>
-      <Separator className="my-4" />
-      <CardTitle className="my-2">✅ Strengths</CardTitle>
-      <ul>
-        {strengths?.map((s: string, i: number) => (
-          <li key={i}>{s}</li>
-        ))}
-      </ul>
-      <Separator className="my-4" />
-      <CardTitle className="my-2">⚠️ Weaknesses</CardTitle>
-      <ul>
-        {weaknesses?.map((w: string, i: number) => (
-          <li key={i}>{w}</li>
-        ))}
-      </ul>
-
-      {considerations && considerations.length > 0 && (
-        <>
-          <Separator className="my-4" />
-          <CardTitle className="my-2">ℹ️ Considerations</CardTitle>
-          <ul>
-            {considerations.map((c: string, i: number) => (
-              <li key={i}>{c}</li>
-            ))}
-          </ul>
-        </>
-      )}
-    </div>
+    <Card className="gap-5 p-6">
+      <FindingList
+        title="Strengths"
+        items={strengths}
+        Icon={Check}
+        tone="text-viz-good"
+      />
+      <FindingList
+        title="Weaknesses"
+        items={weaknesses}
+        Icon={X}
+        tone="text-viz-critical"
+      />
+      <FindingList
+        title="Considerations"
+        items={considerations ?? []}
+        Icon={Info}
+        tone="text-muted-foreground"
+      />
+    </Card>
   )
 }

@@ -1,4 +1,5 @@
-import { ScoringBreakdown } from './schemas/analyze'
+// Type-only so client components can import RUBRIC without pulling in Zod.
+import type { ScoringBreakdown } from './schemas/analyze'
 
 type RubricCategory = {
   label: string
