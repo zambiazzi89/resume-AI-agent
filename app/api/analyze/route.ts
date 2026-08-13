@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 
 import { resume } from '../data/resume'
+import { careerProfile } from '../data/careerProfile'
 import { runAgent } from '@/ai/agent'
 import type { AgentEvent } from '@/ai/types'
 
@@ -30,7 +31,7 @@ export async function POST(req: Request) {
     )
   }
 
-  const events = runAgent(jobDescription, resume)
+  const events = runAgent(jobDescription, resume, careerProfile)
 
   const stream = new ReadableStream({
     // Pulling one event at a time keeps the generator lazy: no model call

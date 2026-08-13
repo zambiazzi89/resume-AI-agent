@@ -21,7 +21,15 @@ export const AnalyzeSchema = z.object({
 
   weaknesses: z
     .array(z.string())
-    .describe('Requirements in the posting that the resume does not support.'),
+    .describe(
+      'Requirements the candidate genuinely does not have, per the career profile.',
+    ),
+
+  undersoldStrengths: z
+    .array(z.string())
+    .describe(
+      'Requirements the career profile shows the candidate HAS but the resume fails to convey. These are resume problems, not candidate problems.',
+    ),
 
   considerations: z
     .array(z.string())

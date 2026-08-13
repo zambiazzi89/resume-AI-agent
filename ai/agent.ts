@@ -1,4 +1,5 @@
 import { ResumeType } from '../app/api/data/resume'
+import type { CareerProfile } from '../app/api/data/careerProfile'
 
 import { parse } from './parser'
 import { RUBRIC } from './rubric'
@@ -46,15 +47,17 @@ function normalizeScores(analysis: AnalyzeResponse): AnalyzeResponse {
 export async function* runAgent(
   jobDescription: string,
   resume: ResumeType,
+  profile: CareerProfile,
 ): AsyncGenerator<AgentEvent> {
   //
-  // STEP 1 — evaluate the resume as-is
+  // STEP 1 — evaluate the resume as-is, with the profile available so a
+  // qualification the resume omits reads as undersold rather than missing
   //
   yield { type: 'step:start', step: 'analyze' }
 
   const initialAnalysis = normalizeScores(
     await parse(
-      getAnalyzePrompt(jobDescription, resume),
+      getAnalyzePrompt(jobDescription, resume, profile),
       AnalyzeSchema,
       'initial_analysis',
     ),
@@ -68,7 +71,7 @@ export async function* runAgent(
   yield { type: 'step:start', step: 'critique' }
 
   const critique = await parse(
-    getCritiquePrompt(jobDescription, resume, initialAnalysis),
+    getCritiquePrompt(jobDescription, resume, profile, initialAnalysis),
     CritiqueSchema,
     'critique',
   )
@@ -81,7 +84,7 @@ export async function* runAgent(
   yield { type: 'step:start', step: 'improve' }
 
   const improvement = await parse(
-    getImprovePrompt(jobDescription, resume, critique),
+    getImprovePrompt(jobDescription, resume, profile, critique),
     ImproveSchema,
     'improvement',
   )
@@ -102,7 +105,7 @@ export async function* runAgent(
 
   const finalAnalysis = normalizeScores(
     await parse(
-      getAnalyzePrompt(jobDescription, improvement.tailoredResume, {
+      getAnalyzePrompt(jobDescription, improvement.tailoredResume, profile, {
         resume,
         analysis: initialAnalysis,
       }),

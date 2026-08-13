@@ -163,6 +163,7 @@ export default function Home() {
             <FeedbackPanel
               strengths={analysis.strengths}
               weaknesses={analysis.weaknesses}
+              undersoldStrengths={analysis.undersoldStrengths}
               considerations={analysis.considerations}
             />
           )}
